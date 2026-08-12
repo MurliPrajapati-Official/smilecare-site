@@ -1,0 +1,6 @@
+{
+  "name": "Dental Health",
+  "description": "A single-page dental clinic landing page featuring interactive masked cards and scroll animations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
