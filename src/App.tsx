@@ -1,4 +1,9 @@
 import React, { useState, useEffect, useRef, useLayoutEffect, ReactNode } from 'react';
+import ServicesPage from './components/ServicesPage';
+import AboutPage from './components/AboutPage';
+import GalleryPage from './components/GalleryPage';
+import ContactPage from './components/ContactPage';
+import Footer from './components/Footer';
 
 const HERO_IMAGE = 'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260624_113640_ccf3cf97-d447-425b-a134-d7b09fc743fc.png&w=1280&q=85';
 const SECTION2_IMAGE = 'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260624_114219_414dfe80-f15c-4e25-bf52-b13721f4bd88.png&w=1280&q=85';
@@ -113,7 +118,12 @@ function MaskedCard({ bgImage, position, imageWidth, focalX, className, children
     backgroundSize: `auto ${position.sh}px`,
     backgroundPosition: `-${position.x + focalOffset}px -${position.y}px`,
     backgroundRepeat: 'no-repeat'
-  } : {};
+  } : {
+    backgroundImage: `url(${bgImage})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat'
+  };
 
   return (
     <div ref={cardRef} className={className} style={{ ...bgStyle, ...style }}>
@@ -155,7 +165,12 @@ function SplashScreen({ onComplete }: { onComplete: () => void }) {
   );
 }
 
-function Navbar() {
+interface NavbarProps {
+  currentPage: string;
+  onNavigate: (page: string) => void;
+}
+
+function Navbar({ currentPage, onNavigate }: NavbarProps) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -169,30 +184,62 @@ function Navbar() {
     };
   }, [open]);
 
+  const handleNavClick = (page: string) => {
+    onNavigate(page);
+    setOpen(false);
+  };
+
+  const navItems = [
+    { label: 'Home', value: 'home' },
+    { label: 'Services', value: 'services' },
+    { label: 'About', value: 'about' },
+    { label: 'Gallery', value: 'gallery' },
+    { label: 'Contact', value: 'contact' }
+  ];
+
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-6 py-2 md:py-3 bg-white/80 backdrop-blur-md">
-        <div className="flex flex-col">
-          <div className="text-xl md:text-2xl font-extrabold uppercase tracking-tight leading-none text-black">
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-8 py-3 md:py-4 bg-white/85 backdrop-blur-md border-b border-black/5 shadow-sm">
+        <div 
+          onClick={() => handleNavClick('home')}
+          className="flex flex-col cursor-pointer group"
+        >
+          <div className="text-xl md:text-2xl font-extrabold uppercase tracking-tight leading-none text-black group-hover:text-neutral-700 transition-colors">
             <div>Dental</div>
-            <div className="-mt-1.5 md:-mt-2">Health</div>
+            <div className="-mt-1 font-extrabold">Health</div>
           </div>
-          <div className="text-[8px] md:text-[9px] font-medium leading-none mt-1.5 md:mt-2 text-black">
-            quality healthcare
-          </div>
+        </div>
+
+        <div className="hidden lg:flex items-center gap-8">
+          {navItems.map(item => (
+            <button
+              key={item.value}
+              onClick={() => handleNavClick(item.value)}
+              className={`text-sm font-bold transition-all ${
+                currentPage === item.value 
+                  ? 'text-black border-b-2 border-black pb-0.5' 
+                  : 'text-neutral-500 hover:text-black'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
 
         <div className="hidden md:flex items-center gap-4">
-          <span className="text-sm font-semibold text-black">Dental Emergency</span>
-          <button className="px-6 py-3 bg-white rounded-full border border-black text-sm font-semibold hover:bg-black hover:text-white transition-colors duration-200">
-            Menu
+          <button 
+            onClick={() => handleNavClick('contact')}
+            className="px-6 py-2.5 bg-black text-white rounded-full text-xs md:text-sm font-semibold hover:bg-neutral-800 transition-all hover:scale-105 shadow-md"
+          >
+            Book Appointment
           </button>
         </div>
 
-        <div className="md:hidden">
+        <div className="lg:hidden flex items-center gap-2">
           <button 
             onClick={() => setOpen(!open)}
             className="w-10 h-10 flex items-center justify-center relative z-50"
+            aria-label="Toggle navigation menu"
           >
             <span className={`absolute h-0.5 w-6 bg-black rounded-full transition-all duration-300 ease-[cubic-bezier(0.76,0,0.24,1)] ${open ? 'rotate-45 translate-y-0' : '-translate-y-2'}`} />
             <span className={`absolute h-0.5 w-6 bg-black rounded-full transition-all duration-300 ease-[cubic-bezier(0.76,0,0.24,1)] ${open ? 'opacity-0 scale-x-0' : 'opacity-100 scale-x-100'}`} />
@@ -201,30 +248,37 @@ function Navbar() {
         </div>
       </nav>
 
-      <div className={`md:hidden fixed inset-0 z-40 transition-opacity duration-500 ${open ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+      {/* Mobile drawer */}
+      <div className={`lg:hidden fixed inset-0 z-40 transition-opacity duration-500 ${open ? 'pointer-events-auto' : 'pointer-events-none'}`}>
         <div 
-          className={`absolute inset-0 bg-black/20 backdrop-blur-sm transition-opacity duration-500 ${open ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity duration-500 ${open ? 'opacity-100' : 'opacity-0'}`}
           onClick={() => setOpen(false)}
         />
         <div className={`absolute top-0 right-0 h-full w-[85%] max-w-sm bg-white shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] ${open ? 'translate-x-0' : 'translate-x-full'}`}>
-          <div className="flex flex-col justify-center h-full px-8 gap-1">
-            {['Home', 'Services', 'About', 'Gallery', 'Contact'].map((item, i) => (
-              <a 
-                key={item}
-                href="#"
-                className={`text-4xl font-bold text-black hover:text-neutral-500 transition-all duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] ${open ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}
+          <div className="flex flex-col justify-center h-full px-8 gap-3">
+            {navItems.map((item, i) => (
+              <button 
+                key={item.value}
+                onClick={() => handleNavClick(item.value)}
+                className={`text-left text-3xl font-bold transition-all duration-500 ${
+                  currentPage === item.value ? 'text-black font-extrabold underline' : 'text-neutral-600 hover:text-black'
+                } ${open ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}
                 style={{ transitionDelay: open ? `${100 + i * 60}ms` : '0ms' }}
               >
-                {item}
-              </a>
+                {item.label}
+              </button>
             ))}
             
             <div 
               className={`mt-8 pt-8 border-t border-neutral-200 transition-all duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] ${open ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}
               style={{ transitionDelay: open ? '450ms' : '0ms' }}
             >
-              <div className="text-sm font-semibold text-black mb-4">Dental Emergency</div>
-              <button className="w-full px-6 py-4 bg-black rounded-full text-white text-sm font-semibold hover:bg-neutral-800 transition-colors duration-200">
+              <div className="text-sm font-bold text-black mb-2">24/7 Emergency Line</div>
+              <div className="text-xs text-neutral-500 mb-4">+1 (201) 555-0199</div>
+              <button 
+                onClick={() => handleNavClick('contact')}
+                className="w-full px-6 py-4 bg-black rounded-full text-white text-sm font-bold hover:bg-neutral-800 transition-colors duration-200"
+              >
                 Book Appointment
               </button>
             </div>
@@ -237,7 +291,13 @@ function Navbar() {
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
+  const [currentPage, setCurrentPage] = useState<string>('home');
   const isMobile = useIsMobile();
+
+  const handleNavigate = (page: string) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Section 1
   const s1Ref = useRef<HTMLElement | null>(null);
@@ -249,7 +309,7 @@ export default function App() {
     if (s1Ref.current) {
       setS1Height(s1Ref.current.getBoundingClientRect().height);
     }
-  }, [s1Positions]); // Re-eval height if positions update
+  }, [s1Positions]);
 
   const s1ImageWidth = useImageWidth(HERO_IMAGE, s1Height);
   const s1Reveal = useStaggeredReveal(4);
@@ -283,216 +343,258 @@ export default function App() {
   const s3Reveal = useStaggeredReveal(4);
 
   return (
-    <div className="bg-white">
+    <div className="bg-white min-h-screen w-full flex flex-col justify-between">
       {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
-      <Navbar />
+      <Navbar currentPage={currentPage} onNavigate={handleNavigate} />
 
-      {/* Section 1 */}
-      <section 
-        ref={setS1Ref} 
-        className="h-screen w-full overflow-hidden flex flex-col pt-24 md:pt-24 px-3 md:px-5 pb-1.5 md:pb-2 gap-1.5 md:gap-2"
-      >
-        {featureBars.map((text, i) => (
-          <MaskedCard
-            key={i}
-            cardRef={(el: HTMLElement | null) => s1CardRefs.current[i] = el}
-            bgImage={HERO_IMAGE}
-            position={s1Positions[i]}
-            imageWidth={s1ImageWidth}
-            focalX={isMobile ? 0.7 : 0.8}
-            className="w-full h-14 md:h-20 shrink-0 rounded-xl md:rounded-2xl overflow-hidden relative"
-            style={s1Reveal.getAnimStyle(i)}
-          >
-            <span className="flex items-center justify-center h-full text-black text-lg md:text-3xl font-bold text-center relative z-10">
-              {text}
-            </span>
-          </MaskedCard>
-        ))}
-
-        <MaskedCard
-          cardRef={(el: HTMLElement | null) => s1CardRefs.current[3] = el}
-          bgImage={HERO_IMAGE}
-          position={s1Positions[3]}
-          imageWidth={s1ImageWidth}
-          focalX={isMobile ? 0.7 : 0.8}
-          className="w-full flex-1 min-h-0 rounded-xl md:rounded-2xl overflow-hidden relative"
-          style={s1Reveal.getAnimStyle(3)}
-        >
-          <div className="absolute top-4 left-4 md:top-7 md:left-7 text-black text-xs md:text-sm font-semibold leading-4 md:leading-5 max-w-[200px] md:max-w-[300px] z-10">
-            We wish to provide professional dental services<br/>that match the current technologies
-          </div>
-          <div className="absolute bottom-5 left-3 md:bottom-8 md:left-4 z-10">
-            <span className="block text-black text-xs md:text-sm font-semibold mb-1 md:mb-2">
-              Trusted Dentist in West New York
-            </span>
-            <h1 className="text-black text-[clamp(3rem,11vw,11rem)] font-bold leading-[0.79] tracking-tight">
-              Dental<br/>Care
-            </h1>
-          </div>
-          <div className="absolute bottom-6 right-4 md:bottom-10 md:right-8 text-white text-xs md:text-sm font-semibold z-10">
-            Free Consultation
-          </div>
-        </MaskedCard>
-      </section>
-
-      {/* Section 2 */}
-      <section 
-        ref={setS2Ref}
-        className="min-h-screen md:h-screen w-full overflow-hidden flex flex-col pt-1.5 md:pt-2 px-3 md:px-5 pb-1.5 md:pb-2 gap-1.5 md:gap-2"
-      >
-        <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 grid-rows-[auto_auto_auto_auto] md:grid-rows-[1fr_1fr_0.8fr] gap-1.5 md:gap-2">
-          
-          <MaskedCard
-            cardRef={(el: HTMLElement | null) => s2CardRefs.current[0] = el}
-            bgImage={SECTION2_IMAGE}
-            position={s2Positions[0]}
-            imageWidth={s2ImageWidth}
-            focalX={isMobile ? 0.65 : 0.8}
-            className="rounded-xl md:rounded-2xl overflow-hidden relative min-h-[160px] md:min-h-0"
-            style={s2Reveal.getAnimStyle(0)}
-          >
-            <div className="absolute top-4 left-5 md:top-6 md:left-7 text-white md:text-black text-2xl md:text-3xl font-bold z-10">
-              Smile Gallery
-            </div>
-            <div className="absolute bottom-4 left-5 md:bottom-6 md:left-7 text-white md:text-black text-xs md:text-sm font-semibold z-10">
-              Our cosmetic dental work
-            </div>
-          </MaskedCard>
-
-          <MaskedCard
-            cardRef={(el: HTMLElement | null) => s2CardRefs.current[1] = el}
-            bgImage={SECTION2_IMAGE}
-            position={s2Positions[1]}
-            imageWidth={s2ImageWidth}
-            focalX={isMobile ? 0.65 : 0.8}
-            className="md:row-span-2 rounded-xl md:rounded-2xl overflow-hidden relative min-h-[200px] md:min-h-0"
-            style={s2Reveal.getAnimStyle(1)}
-          >
-            <div className="absolute bottom-16 left-5 md:bottom-20 md:left-7 text-white text-xs md:text-sm font-semibold leading-4 md:leading-5 z-10">
-              If you want a gorgeous smile,<br/>call us to ask about a smile makeover.
-            </div>
-            <button className="absolute bottom-4 right-4 md:bottom-6 md:right-6 px-5 py-3 md:px-8 md:py-5 bg-white rounded-full text-black text-base md:text-xl font-bold z-10 hover:scale-105 transition-transform">
-              Call Us
-            </button>
-          </MaskedCard>
-
-          <MaskedCard
-            cardRef={(el: HTMLElement | null) => s2CardRefs.current[2] = el}
-            bgImage={SECTION2_IMAGE}
-            position={s2Positions[2]}
-            imageWidth={s2ImageWidth}
-            focalX={isMobile ? 0.65 : 0.8}
-            className="rounded-xl md:rounded-2xl overflow-hidden relative min-h-[160px] md:min-h-0"
-            style={s2Reveal.getAnimStyle(2)}
-          >
-            <div className="absolute top-4 left-5 md:top-6 md:left-7 text-white md:text-black text-[clamp(3rem,7vw,6rem)] font-bold leading-[0.9] z-10">
-              Smile<br/>makeover
-            </div>
-          </MaskedCard>
-
-          <MaskedCard
-            cardRef={(el: HTMLElement | null) => s2CardRefs.current[3] = el}
-            bgImage={SECTION2_IMAGE}
-            position={s2Positions[3]}
-            imageWidth={s2ImageWidth}
-            focalX={isMobile ? 0.65 : 0.8}
-            className="col-span-1 md:col-span-2 rounded-xl md:rounded-2xl overflow-hidden relative min-h-[200px] md:min-h-0"
-            style={s2Reveal.getAnimStyle(3)}
-          >
-            <div className="absolute inset-0 z-10 flex flex-wrap md:flex-nowrap gap-1.5 md:gap-2 p-2 md:p-3">
-              {services.map((svc, i) => (
-                <div key={i} className={`flex-1 min-w-[calc(50%-4px)] md:min-w-0 rounded-xl md:rounded-2xl p-3 md:p-5 flex flex-col justify-between ${svc.active ? 'bg-white/90 backdrop-blur-md' : 'bg-white/20 backdrop-blur-xl'}`}>
-                  <h3 className={`text-xl md:text-4xl font-bold leading-[1.05] whitespace-pre-line ${svc.active ? 'text-black' : 'text-white'}`}>
-                    {svc.name}
-                  </h3>
-                  {svc.num && (
-                    <div className={`self-end w-8 h-8 md:w-12 md:h-12 rounded-full border flex items-center justify-center text-xs md:text-sm font-semibold ${svc.active ? 'border-black text-black' : 'border-white text-white'}`}>
-                      {svc.num}
-                    </div>
-                  )}
-                </div>
+      {/* Main Dynamic View Content */}
+      <main className="w-full flex-1">
+        {currentPage === 'home' && (
+          <>
+            {/* Section 1 - Hero */}
+            <section 
+              ref={setS1Ref} 
+              className="w-full min-h-screen flex flex-col pt-20 md:pt-24 px-2 md:px-4 pb-4 gap-2 md:gap-3"
+            >
+              {featureBars.map((text, i) => (
+                <MaskedCard
+                  key={i}
+                  cardRef={(el: HTMLElement | null) => s1CardRefs.current[i] = el}
+                  bgImage={HERO_IMAGE}
+                  position={s1Positions[i]}
+                  imageWidth={s1ImageWidth}
+                  focalX={isMobile ? 0.7 : 0.8}
+                  className="w-full h-14 md:h-20 shrink-0 rounded-xl md:rounded-2xl overflow-hidden relative shadow-sm"
+                  style={s1Reveal.getAnimStyle(i)}
+                >
+                  <span className="flex items-center justify-center h-full text-black text-base sm:text-xl md:text-3xl font-bold text-center relative z-10 px-4">
+                    {text}
+                  </span>
+                </MaskedCard>
               ))}
-            </div>
-          </MaskedCard>
 
-        </div>
-      </section>
-
-      {/* Section 3 */}
-      <section 
-        ref={s3Reveal.containerRef as React.RefObject<HTMLElement>}
-        className="min-h-screen md:h-screen w-full overflow-hidden flex flex-col pt-1.5 md:pt-2 px-3 md:px-5 pb-1.5 md:pb-2 gap-1.5 md:gap-2"
-      >
-        <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 gap-1.5 md:gap-2">
-          
-          {/* Left Column */}
-          <div className="flex flex-col gap-1.5 md:gap-2">
-            
-            <div className="rounded-xl md:rounded-2xl bg-stone-50 p-5 md:p-7 flex flex-col justify-between flex-[1.2] min-h-[180px] md:min-h-0" style={s3Reveal.getAnimStyle(0)}>
-              <h2 className="text-[clamp(3rem,7vw,6.5rem)] font-bold leading-[0.95] text-black">
-                Implant<br/>Dentistry
-              </h2>
-              <p className="text-xs md:text-sm font-semibold text-black">
-                Restore Missing Teeth
-              </p>
-            </div>
-
-            <div className="flex gap-1.5 md:gap-2 flex-1 min-h-[140px] md:min-h-0" style={s3Reveal.getAnimStyle(1)}>
-              <div className="flex-1 rounded-xl md:rounded-2xl overflow-hidden">
-                <img src={SECTION3_IMG1} alt="Dental implant procedure" className="w-full h-full object-cover" />
-              </div>
-              <div className="flex-1 rounded-xl md:rounded-2xl overflow-hidden">
-                <img src={SECTION3_IMG2} alt="Dental restoration" className="w-full h-full object-cover" />
-              </div>
-            </div>
-
-            <div className="rounded-xl md:rounded-2xl bg-zinc-200 p-5 md:p-7 flex items-end justify-between flex-[0.8] min-h-[160px] md:min-h-0" style={s3Reveal.getAnimStyle(2)}>
-              <div>
-                <p className="text-xs md:text-sm font-semibold text-black mb-2 md:mb-3">Consultation</p>
-                <h3 className="text-xl md:text-3xl font-bold text-black leading-6 md:leading-8">
-                  Dental<br/>Restoration<br/>Services
-                </h3>
-              </div>
-              <button className="px-5 py-3 md:px-8 md:py-5 bg-white rounded-full text-black text-base md:text-xl font-bold hover:scale-105 transition-transform">
-                Book Online
-              </button>
-            </div>
-
-          </div>
-
-          {/* Right Column */}
-          <div className="rounded-xl md:rounded-2xl overflow-hidden relative min-h-[350px] md:min-h-0" style={s3Reveal.getAnimStyle(3)}>
-            <img src={SECTION3_BG} alt="Smiling patient" className="w-full h-full object-cover" />
-            
-            <div className="absolute bottom-3 left-3 right-3 md:bottom-5 md:left-5 md:right-5 flex gap-1.5 md:gap-2">
-              
-              <div className="flex-1 bg-white rounded-xl md:rounded-2xl p-3 md:p-5 flex flex-col justify-between h-36 md:h-52">
-                <h4 className="text-lg md:text-2xl font-bold text-black leading-5 md:leading-7">
-                  The Process<br/>of Installing<br/>Implants
-                </h4>
-                <div className="self-end w-9 h-9 md:w-12 md:h-12 rounded-full border border-black flex items-center justify-center">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="rotate-[-45deg] text-black">
-                    <path d="M1 7h12m0 0L8 2m5 5L8 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+              <MaskedCard
+                cardRef={(el: HTMLElement | null) => s1CardRefs.current[3] = el}
+                bgImage={HERO_IMAGE}
+                position={s1Positions[3]}
+                imageWidth={s1ImageWidth}
+                focalX={isMobile ? 0.7 : 0.8}
+                className="w-full min-h-[480px] md:min-h-[620px] lg:min-h-[700px] flex-1 rounded-xl md:rounded-2xl overflow-hidden relative shadow-md"
+                style={s1Reveal.getAnimStyle(3)}
+              >
+                <div className="absolute top-6 left-6 md:top-8 md:left-8 text-black text-xs md:text-sm font-semibold leading-relaxed max-w-[220px] md:max-w-[340px] z-10 bg-white/40 backdrop-blur-md p-3.5 md:p-4 rounded-xl border border-white/40">
+                  We wish to provide professional dental services that match the current technologies
                 </div>
-              </div>
-
-              <div className="flex-1 bg-white/20 backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-5 flex flex-col justify-between h-36 md:h-52">
-                <h4 className="text-lg md:text-2xl font-bold text-white leading-5 md:leading-7">
-                  Caring<br/>for Dental<br/>Implants
-                </h4>
-                <div className="self-end w-9 h-9 md:w-12 md:h-12 rounded-full border border-white flex items-center justify-center">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="rotate-[-45deg] text-white">
-                    <path d="M1 7h12m0 0L8 2m5 5L8 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+                <div className="absolute bottom-6 left-6 md:bottom-10 md:left-8 z-10">
+                  <span className="block text-black text-xs md:text-sm font-semibold mb-1 md:mb-2 tracking-wide uppercase">
+                    Trusted Dentist in West New York
+                  </span>
+                  <h1 className="text-black text-[clamp(3rem,9vw,9.5rem)] font-extrabold leading-[0.82] tracking-tight">
+                    Dental<br/>Care
+                  </h1>
                 </div>
+                <button 
+                  onClick={() => handleNavigate('contact')}
+                  className="absolute bottom-6 right-6 md:bottom-10 md:right-8 bg-black/90 backdrop-blur-md px-6 py-3.5 rounded-full text-white text-xs md:text-sm font-semibold z-10 shadow-lg hover:bg-black transition-all hover:scale-105 cursor-pointer"
+                >
+                  Free Consultation
+                </button>
+              </MaskedCard>
+            </section>
+
+            {/* Section 2 - Services & Gallery */}
+            <section 
+              ref={setS2Ref}
+              className="w-full min-h-screen py-8 md:py-12 px-2 md:px-4 flex flex-col gap-3 md:gap-4"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 w-full">
+                
+                <MaskedCard
+                  cardRef={(el: HTMLElement | null) => s2CardRefs.current[0] = el}
+                  bgImage={SECTION2_IMAGE}
+                  position={s2Positions[0]}
+                  imageWidth={s2ImageWidth}
+                  focalX={isMobile ? 0.65 : 0.8}
+                  className="rounded-xl md:rounded-2xl overflow-hidden relative min-h-[220px] md:min-h-[280px] p-6 md:p-8 flex flex-col justify-between shadow-md cursor-pointer"
+                  style={s2Reveal.getAnimStyle(0)}
+                >
+                  <div className="text-white md:text-black text-2xl md:text-4xl font-bold z-10">
+                    Smile Gallery
+                  </div>
+                  <div 
+                    onClick={() => handleNavigate('gallery')}
+                    className="text-white md:text-black text-xs md:text-sm font-semibold z-10 hover:underline"
+                  >
+                    Our cosmetic dental work →
+                  </div>
+                </MaskedCard>
+
+                <MaskedCard
+                  cardRef={(el: HTMLElement | null) => s2CardRefs.current[1] = el}
+                  bgImage={SECTION2_IMAGE}
+                  position={s2Positions[1]}
+                  imageWidth={s2ImageWidth}
+                  focalX={isMobile ? 0.65 : 0.8}
+                  className="md:row-span-2 rounded-xl md:rounded-2xl overflow-hidden relative min-h-[300px] md:min-h-[580px] p-6 md:p-8 flex flex-col justify-between shadow-md"
+                  style={s2Reveal.getAnimStyle(1)}
+                >
+                  <div className="text-white text-base md:text-xl font-semibold leading-relaxed max-w-sm z-10 mt-auto mb-16">
+                    If you want a gorgeous smile, call us to ask about a smile makeover.
+                  </div>
+                  <button 
+                    onClick={() => handleNavigate('contact')}
+                    className="absolute bottom-6 right-6 px-6 py-3.5 md:px-8 md:py-4 bg-white rounded-full text-black text-base md:text-lg font-bold z-10 hover:scale-105 transition-all shadow-lg"
+                  >
+                    Call Us
+                  </button>
+                </MaskedCard>
+
+                <MaskedCard
+                  cardRef={(el: HTMLElement | null) => s2CardRefs.current[2] = el}
+                  bgImage={SECTION2_IMAGE}
+                  position={s2Positions[2]}
+                  imageWidth={s2ImageWidth}
+                  focalX={isMobile ? 0.65 : 0.8}
+                  className="rounded-xl md:rounded-2xl overflow-hidden relative min-h-[220px] md:min-h-[280px] p-6 md:p-8 flex items-center shadow-md cursor-pointer"
+                  style={s2Reveal.getAnimStyle(2)}
+                >
+                  <div 
+                    onClick={() => handleNavigate('services')}
+                    className="text-white md:text-black text-[clamp(2.5rem,6.5vw,5.5rem)] font-extrabold leading-[0.9] z-10"
+                  >
+                    Smile<br/>makeover
+                  </div>
+                </MaskedCard>
+
+                <MaskedCard
+                  cardRef={(el: HTMLElement | null) => s2CardRefs.current[3] = el}
+                  bgImage={SECTION2_IMAGE}
+                  position={s2Positions[3]}
+                  imageWidth={s2ImageWidth}
+                  focalX={isMobile ? 0.65 : 0.8}
+                  className="col-span-1 md:col-span-2 rounded-xl md:rounded-2xl overflow-hidden relative min-h-[220px] md:min-h-[260px] shadow-md p-3 md:p-4"
+                  style={s2Reveal.getAnimStyle(3)}
+                >
+                  <div className="z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 w-full h-full">
+                    {services.map((svc, i) => (
+                      <div 
+                        key={i} 
+                        onClick={() => handleNavigate('services')}
+                        className={`rounded-xl md:rounded-2xl p-4 md:p-6 flex flex-col justify-between min-h-[140px] md:min-h-[180px] transition-all hover:scale-[1.02] cursor-pointer ${svc.active ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'bg-white/20 backdrop-blur-xl border border-white/20'}`}
+                      >
+                        <h3 className={`text-xl md:text-2xl lg:text-3xl font-bold leading-tight whitespace-pre-line ${svc.active ? 'text-black' : 'text-white'}`}>
+                          {svc.name}
+                        </h3>
+                        {svc.num && (
+                          <div className={`self-end w-8 h-8 md:w-10 md:h-10 rounded-full border flex items-center justify-center text-xs md:text-sm font-semibold mt-4 ${svc.active ? 'border-black text-black' : 'border-white text-white'}`}>
+                            {svc.num}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </MaskedCard>
+
               </div>
+            </section>
 
-            </div>
-          </div>
+            {/* Section 3 - Implant Dentistry */}
+            <section 
+              ref={s3Reveal.containerRef as React.RefObject<HTMLElement>}
+              className="w-full min-h-screen py-8 md:py-12 px-2 md:px-4 flex flex-col gap-3 md:gap-4 pb-16"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 w-full">
+                
+                {/* Left Column */}
+                <div className="flex flex-col gap-4 md:gap-6 flex-1">
+                  
+                  <div className="rounded-xl md:rounded-2xl bg-stone-100 p-6 md:p-8 flex flex-col justify-between min-h-[220px] md:min-h-[260px] shadow-sm" style={s3Reveal.getAnimStyle(0)}>
+                    <h2 className="text-[clamp(2.5rem,6vw,5.5rem)] font-extrabold leading-[0.95] text-black">
+                      Implant<br/>Dentistry
+                    </h2>
+                    <p className="text-xs md:text-sm font-semibold text-black uppercase tracking-wider mt-4">
+                      Restore Missing Teeth
+                    </p>
+                  </div>
 
-        </div>
-      </section>
+                  <div className="grid grid-cols-2 gap-3 md:gap-4 h-48 md:h-64" style={s3Reveal.getAnimStyle(1)}>
+                    <div className="rounded-xl md:rounded-2xl overflow-hidden shadow-sm">
+                      <img src={SECTION3_IMG1} alt="Dental implant procedure" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                    </div>
+                    <div className="rounded-xl md:rounded-2xl overflow-hidden shadow-sm">
+                      <img src={SECTION3_IMG2} alt="Dental restoration" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl md:rounded-2xl bg-zinc-200 p-6 md:p-8 flex items-center justify-between min-h-[160px] md:min-h-[180px] shadow-sm" style={s3Reveal.getAnimStyle(2)}>
+                    <div>
+                      <p className="text-xs md:text-sm font-semibold text-black mb-1 uppercase tracking-wider">Consultation</p>
+                      <h3 className="text-xl md:text-2xl font-bold text-black leading-tight">
+                        Dental Restoration<br/>Services
+                      </h3>
+                    </div>
+                    <button 
+                      onClick={() => handleNavigate('contact')}
+                      className="px-5 py-3 md:px-7 md:py-4 bg-white rounded-full text-black text-sm md:text-base font-bold hover:scale-105 transition-transform shadow-md shrink-0 ml-4"
+                    >
+                      Book Online
+                    </button>
+                  </div>
+
+                </div>
+
+                {/* Right Column */}
+                <div className="rounded-xl md:rounded-2xl overflow-hidden relative min-h-[460px] md:min-h-[600px] shadow-md" style={s3Reveal.getAnimStyle(3)}>
+                  <img src={SECTION3_BG} alt="Smiling patient" className="w-full h-full object-cover" />
+                  
+                  <div className="absolute bottom-4 left-4 right-4 md:bottom-6 md:left-6 md:right-6 grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                    
+                    <div 
+                      onClick={() => handleNavigate('services')}
+                      className="bg-white/95 backdrop-blur-md rounded-xl md:rounded-2xl p-5 flex flex-col justify-between min-h-[140px] md:min-h-[180px] shadow-md hover:scale-[1.02] transition-transform cursor-pointer"
+                    >
+                      <h4 className="text-base md:text-xl font-bold text-black leading-tight">
+                        The Process<br/>of Installing<br/>Implants
+                      </h4>
+                      <div className="self-end w-9 h-9 md:w-10 md:h-10 rounded-full border border-black flex items-center justify-center">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="rotate-[-45deg] text-black">
+                          <path d="M1 7h12m0 0L8 2m5 5L8 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    <div 
+                      onClick={() => handleNavigate('services')}
+                      className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-xl md:rounded-2xl p-5 flex flex-col justify-between min-h-[140px] md:min-h-[180px] shadow-md hover:scale-[1.02] transition-transform cursor-pointer"
+                    >
+                      <h4 className="text-base md:text-xl font-bold text-white leading-tight">
+                        Caring<br/>for Dental<br/>Implants
+                      </h4>
+                      <div className="self-end w-9 h-9 md:w-10 md:h-10 rounded-full border border-white flex items-center justify-center">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="rotate-[-45deg] text-white">
+                          <path d="M1 7h12m0 0L8 2m5 5L8 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+            </section>
+          </>
+        )}
+
+        {currentPage === 'services' && <ServicesPage onNavigate={handleNavigate} />}
+        {currentPage === 'about' && <AboutPage onNavigate={handleNavigate} />}
+        {currentPage === 'gallery' && <GalleryPage onNavigate={handleNavigate} />}
+        {currentPage === 'contact' && <ContactPage />}
+      </main>
+
+      {/* Universal Footer */}
+      <Footer onNavigate={handleNavigate} />
     </div>
   );
 }
+
+
