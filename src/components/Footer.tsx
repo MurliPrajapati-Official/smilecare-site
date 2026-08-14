@@ -6,8 +6,8 @@ interface FooterProps {
 
 export default function Footer({ onNavigate }: FooterProps) {
   return (
-    <footer className="w-full bg-black text-white py-12 md:py-20 px-4 md:px-8">
-      <div className="w-full max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 pb-12 border-b border-neutral-800">
+    <footer className="w-full bg-black text-white py-12 md:py-20 px-3 sm:px-6 lg:px-8">
+      <div className="w-full max-w-[1600px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 pb-12 border-b border-neutral-800">
         
         {/* Column 1: Brand */}
         <div className="flex flex-col gap-4">
@@ -31,7 +31,7 @@ export default function Footer({ onNavigate }: FooterProps) {
             <button
               key={link}
               onClick={() => onNavigate(link.toLowerCase())}
-              className="text-left text-sm font-semibold text-neutral-300 hover:text-white transition-colors"
+              className="text-left text-sm font-semibold text-neutral-300 hover:text-white transition-colors cursor-pointer"
             >
               {link}
             </button>
@@ -62,7 +62,7 @@ export default function Footer({ onNavigate }: FooterProps) {
               placeholder="Enter your email" 
               className="px-4 py-3 bg-neutral-900 border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-white transition-colors"
             />
-            <button className="px-5 py-3 bg-white text-black text-xs font-bold rounded-xl hover:bg-neutral-200 transition-colors">
+            <button className="px-5 py-3 bg-white text-black text-xs font-bold rounded-xl hover:bg-neutral-200 transition-colors cursor-pointer">
               Subscribe
             </button>
           </div>
@@ -70,9 +70,9 @@ export default function Footer({ onNavigate }: FooterProps) {
 
       </div>
 
-      <div className="w-full max-w-[1600px] mx-auto pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500 font-medium">
+      <div className="w-full max-w-[1600px] mx-auto pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500 font-medium text-center sm:text-left">
         <p>© {new Date().getFullYear()} Dental Health Practice. All rights reserved.</p>
-        <div className="flex gap-6">
+        <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
           <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
           <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
           <a href="#" className="hover:text-white transition-colors">HIPAA Compliance</a>

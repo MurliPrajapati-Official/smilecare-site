@@ -3,12 +3,14 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
   }
   html, body, #root {
     min-height: 100%;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    width: 100%;
   }
   body {
     font-family: 'Open Sauce One', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -17,5 +19,21 @@
     background-color: #ffffff;
     color: #000000;
   }
+  
+  /* Prevent media overflow */
+  img, video, iframe, svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Custom scrollbar for horizontal filter tabs */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
+
 
